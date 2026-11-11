@@ -1,0 +1,53 @@
+{
+  "config": {
+    "abort": {
+      "already_configured": "Actualités France est déjà installée : changez les médias suivis avec « Configurer ».",
+      "single_instance_allowed": "Actualités France est déjà installée : changez les médias suivis avec « Configurer »."
+    },
+    "error": {
+      "bad_custom": "Chaque ligne doit être de la forme « Nom | https://adresse-du-flux ».",
+      "no_source": "Choisissez au moins un média ou ajoutez un flux."
+    },
+    "step": {
+      "user": {
+        "title": "Actualités France",
+        "description": "Titres et résumés publiés par les médias dans leurs flux RSS. L'article complet reste sur le site du média. Intégration non officielle.",
+        "data": {
+          "sources": "Médias suivis",
+          "custom_feeds": "Autres flux RSS",
+          "items": "Articles par média",
+          "scan_minutes": "Lecture des flux toutes les"
+        },
+        "data_description": {
+          "sources": "Un capteur par média, que la carte affiche.",
+          "custom_feeds": "Un flux par ligne : « Nom | https://adresse-du-flux » (RSS ou Atom).",
+          "items": "Nombre d'articles gardés pour chaque média.",
+          "scan_minutes": "10 minutes au minimum, pour ne pas surcharger les sites."
+        }
+      }
+    }
+  },
+  "options": {
+    "error": {
+      "bad_custom": "Chaque ligne doit être de la forme « Nom | https://adresse-du-flux ».",
+      "no_source": "Choisissez au moins un média ou ajoutez un flux."
+    },
+    "step": {
+      "init": {
+        "title": "Médias suivis",
+        "data": {
+          "sources": "Médias suivis",
+          "custom_feeds": "Autres flux RSS",
+          "items": "Articles par média",
+          "scan_minutes": "Lecture des flux toutes les"
+        },
+        "data_description": {
+          "sources": "Un capteur par média, que la carte affiche. Un média retiré voit son capteur supprimé.",
+          "custom_feeds": "Un flux par ligne : « Nom | https://adresse-du-flux » (RSS ou Atom).",
+          "items": "Nombre d'articles gardés pour chaque média.",
+          "scan_minutes": "10 minutes au minimum, pour ne pas surcharger les sites."
+        }
+      }
+    }
+  }
+}

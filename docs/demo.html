@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Actualités France — démo</title>
+<style>
+  :root { color-scheme: dark; }
+  body { margin: 0; background: #0d1624; color: #e7edf5; font-family: Inter, "Segoe UI", Roboto, sans-serif; }
+  main { max-width: 560px; margin: 0 auto; padding: 24px 16px 48px; }
+  h1 { font-size: 1.4rem; margin: 0 0 4px; }
+  p { color: #8fa0b8; margin: 0 0 18px; font-size: .9rem; line-height: 1.5; }
+  ha-card { display: block; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Actualités France <small style="font-size:.7rem;color:#8fa0b8">démo</small></h1>
+  <p>Titres et résumés <b>fictifs</b>, sans lien avec les médias cités : dans Home Assistant, la carte lit les capteurs de l'intégration. Cliquez sur un titre pour le dérouler.</p>
+  <div id="card"></div>
+</main>
+<script>
+  // éléments de Home Assistant simulés : ha-card et ha-icon
+  customElements.define("ha-card", class extends HTMLElement {});
+  customElements.define("ha-icon", class extends HTMLElement {});
+</script>
+<script src="../custom_components/news_fr/frontend/news-fr-card.js"></script>
+<script>
+  const now = Date.now(), min = 60000;
+  const art = (id, title, mins, summary, img) => ({ id, title, url: "https://example.org/" + id, summary, image: img || null,
+    published: new Date(now - mins * min).toISOString(), author: null });
+  // images de la démo : publiées avec la page (GitHub Pages)
+  const pic = (n) => "https://marlboro62.github.io/news-fr-card/docs/img/" + n + ".svg";
+  const src = (name, key, arts, error) => ({ entity_id: "sensor.actualites_france_" + key, state: String(arts.length), last_updated: new Date(now).toISOString(),
+    attributes: { friendly_name: "Actualités France " + name, site: "https://example.org", updated: new Date(now - 4 * min).toISOString(), error: error || null, articles: arts } });
+  const states = {};
+  for (const s of [
+    src("Le Monde", "le_monde", [
+      art("m1", "Conférence sur le climat : les négociations entrent dans leur dernière ligne droite", 12, "Les délégations doivent s'accorder d'ici vendredi sur un texte commun. Plusieurs pays réclament un calendrier plus ambitieux.", pic("monde")),
+      art("m2", "Budget 2027 : ce que prévoit le texte examiné à l'Assemblée", 95, "Le projet de loi de finances arrive en séance publique. Voici les principales mesures, ligne par ligne.", pic("budget"))]),
+    src("BFMTV", "bfmtv", [
+      art("b1", "Intempéries : quatre départements placés en vigilance orange", 6, "Météo-France annonce des cumuls de pluie importants jusqu'à demain matin.", pic("bfm")),
+      art("b2", "Carburants : les prix à la pompe repartent à la baisse", 140, "Le gazole perd deux centimes en une semaine selon les relevés officiels.")]),
+    src("CNews", "cnews", [art("c1", "Transports : le point sur le trafic ce soir en Île-de-France", 25, "", pic("cnews"))]),
+    src("Le Parisien", "le_parisien", [art("p1", "Week-end : dix idées de sorties autour de Paris", 60, "Expositions, marchés de Noël et balades : notre sélection pour profiter des derniers jours d'automne.", pic("parisien"))]),
+  ]) states[s.entity_id] = s;
+  const entities = Object.fromEntries(Object.keys(states).map((id) => [id, { platform: "news_fr" }]));
+  const card = document.createElement("news-fr-card");
+  card.setConfig({ type: "custom:news-fr-card" });
+  card.hass = { states, entities, themes: { darkMode: true } };
+  document.getElementById("card").appendChild(card);
+  window.card = card;
+</script>
+</body>
+</html>

@@ -1,0 +1,53 @@
+{
+  "config": {
+    "abort": {
+      "already_configured": "French news is already set up: change the outlets with “Configure”.",
+      "single_instance_allowed": "French news is already set up: change the outlets with “Configure”."
+    },
+    "error": {
+      "bad_custom": "Each line must look like “Name | https://feed-address”.",
+      "no_source": "Pick at least one outlet or add a feed."
+    },
+    "step": {
+      "user": {
+        "title": "French news",
+        "description": "Headlines and summaries published by the outlets in their RSS feeds. The full article stays on the outlet's website. Unofficial integration.",
+        "data": {
+          "sources": "Outlets",
+          "custom_feeds": "Other RSS feeds",
+          "items": "Articles per outlet",
+          "scan_minutes": "Read the feeds every"
+        },
+        "data_description": {
+          "sources": "One sensor per outlet, shown by the card.",
+          "custom_feeds": "One feed per line: “Name | https://feed-address” (RSS or Atom).",
+          "items": "Number of articles kept for each outlet.",
+          "scan_minutes": "At least 10 minutes, so as not to overload the websites."
+        }
+      }
+    }
+  },
+  "options": {
+    "error": {
+      "bad_custom": "Each line must look like “Name | https://feed-address”.",
+      "no_source": "Pick at least one outlet or add a feed."
+    },
+    "step": {
+      "init": {
+        "title": "Outlets",
+        "data": {
+          "sources": "Outlets",
+          "custom_feeds": "Other RSS feeds",
+          "items": "Articles per outlet",
+          "scan_minutes": "Read the feeds every"
+        },
+        "data_description": {
+          "sources": "One sensor per outlet, shown by the card. A removed outlet has its sensor deleted.",
+          "custom_feeds": "One feed per line: “Name | https://feed-address” (RSS or Atom).",
+          "items": "Number of articles kept for each outlet.",
+          "scan_minutes": "At least 10 minutes, so as not to overload the websites."
+        }
+      }
+    }
+  }
+}
