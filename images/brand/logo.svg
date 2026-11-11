@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 200" width="500" height="200">
+  <g transform="translate(22 22) scale(0.609)"><defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1b3352"/><stop offset="1" stop-color="#0d1624"/>
+    </linearGradient>
+    <linearGradient id="page" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f4f8fc"/><stop offset="1" stop-color="#c9d6e4"/>
+    </linearGradient>
+  </defs>
+  <rect width="256" height="256" rx="56" fill="url(#bg)"/>
+  <!-- journal -->
+  <rect x="58" y="44" width="156" height="128" rx="14" fill="url(#page)"/>
+  <rect x="38" y="70" width="34" height="102" rx="12" fill="#c9d6e4"/>
+  <rect x="58" y="70" width="14" height="102" fill="#c9d6e4"/>
+  <!-- bandeau tricolore -->
+  <rect x="76" y="60" width="40" height="10" rx="3" fill="#1d4fd8"/>
+  <rect x="116" y="60" width="40" height="10" fill="#ffffff" stroke="#c9d6e4"/>
+  <rect x="156" y="60" width="40" height="10" rx="3" fill="#e5484d"/>
+  <!-- titre et colonnes -->
+  <rect x="76" y="82" width="120" height="14" rx="4" fill="#1a2434"/>
+  <rect x="76" y="106" width="52" height="40" rx="6" fill="#1d93e3"/>
+  <rect x="138" y="106" width="58" height="8" rx="4" fill="#8fa0b8"/>
+  <rect x="138" y="122" width="58" height="8" rx="4" fill="#8fa0b8"/>
+  <rect x="138" y="138" width="40" height="8" rx="4" fill="#8fa0b8"/>
+  <rect x="76" y="154" width="120" height="8" rx="4" fill="#8fa0b8"/>
+  <!-- signature Marlboro62 -->
+  <g font-family="Inter, 'Segoe UI', 'DejaVu Sans', Arial, sans-serif" font-weight="800">
+    <rect x="30" y="190" width="88" height="40" rx="20" fill="#0d1624" stroke="#f0a33a" stroke-width="3"/>
+    <text x="74" y="219" font-size="26" text-anchor="middle" fill="#f0a33a" letter-spacing="1">M62</text>
+  </g>
+</g>
+  <g font-family="Inter, 'Segoe UI', 'DejaVu Sans', Arial, sans-serif">
+    <text x="196" y="96" font-size="40" font-weight="800" fill="#1d93e3">Actualités</text>
+    <text x="196" y="138" font-size="40" font-weight="800" fill="#e5484d">France</text>
+    <text x="196" y="170" font-size="17" font-weight="600" fill="#8fa0b8">par Marlboro62</text>
+  </g>
+</svg>
