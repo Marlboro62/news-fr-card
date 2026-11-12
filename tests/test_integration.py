@@ -66,7 +66,9 @@ async def test_media_retire(hass: HomeAssistant, aioclient_mock):
     hass.config_entries.async_update_entry(entry, options={**OPTS, CONF_SOURCES: ["lemonde"]})
     await hass.async_block_till_done()
     reg = er.async_get(hass)
-    assert len(er.async_entries_for_config_entry(reg, entry.entry_id)) == 1
+    ents = er.async_entries_for_config_entry(reg, entry.entry_id)
+    # capteur du média retiré supprimé ; le capteur d'alerte enlèvement reste
+    assert sorted(e.domain for e in ents) == ["binary_sensor", "sensor"]
 
 
 async def test_gros_flux_lu_en_entier(hass: HomeAssistant, aioclient_mock):
