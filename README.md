@@ -33,7 +33,7 @@ Intégration et carte **non officielles** pour suivre l'actualité des **médias
 
 > Ce projet n'est affilié à aucun des médias cités. Il lit leurs **flux RSS publics** (titre, résumé, image, date), comme un lecteur de flux. Les articles et leur contenu appartiennent à chaque média : l'article complet se lit sur son site.
 
-🎮 **[Essayer la démo en ligne](https://marlboro62.github.io/news-fr-card/docs/demo.html)** : la vraie carte avec des titres et des résumés fictifs, sans installer Home Assistant.
+🎮 **[Essayer la démo en ligne](https://marlboro62.github.io/news-fr-card/docs/demo.html)** : la vraie carte avec des titres et des résumés fictifs, sans installer Home Assistant (bleu nuit ou clair, et **simulation d'une Alerte Enlèvement fictive** pour voir la fenêtre d'alerte).
 
 <p align="center">
   <img src="docs/images/carte.png" alt="Carte Actualités France, un article déroulé" width="340">

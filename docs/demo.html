@@ -11,6 +11,15 @@
   h1 { font-size: 1.4rem; margin: 0 0 4px; }
   p { color: #8fa0b8; margin: 0 0 18px; font-size: .9rem; line-height: 1.5; }
   ha-card { display: block; }
+  .ctl { margin-top: 18px; padding: 14px 16px; border-radius: 16px; background: #1a2434; border: 1px solid #2f3d55; }
+  .ctl h2 { font-size: .78rem; letter-spacing: .06em; text-transform: uppercase; color: #8fa0b8; margin: 0 0 10px; }
+  .ctl .row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+  .ctl .row:last-child { margin-bottom: 0; }
+  .ctl button { font: inherit; font-size: .84rem; padding: 7px 14px; border-radius: 999px; border: 1px solid #2f3d55; background: #212d40; color: #e7edf5; cursor: pointer; }
+  .ctl button.on { background: #1d93e3; border-color: #1d93e3; color: #fff; }
+  .ctl button.alert.on { background: #b3261e; border-color: #e5484d; }
+  .ctl small { display: block; color: #8fa0b8; font-size: .78rem; line-height: 1.45; margin-top: 4px; }
+  body.light { background: #e8edf4; color: #1a2434; }
 </style>
 </head>
 <body>
@@ -18,6 +27,18 @@
   <h1>Actualités France <small style="font-size:.7rem;color:#8fa0b8">démo</small></h1>
   <p>Titres et résumés <b>fictifs</b>, sans lien avec les médias cités : dans Home Assistant, la carte lit les capteurs de l'intégration. Cliquez sur un titre pour le dérouler.</p>
   <div id="card"></div>
+  <section class="ctl" aria-label="Réglages de la démo">
+    <h2>Couleurs de la carte</h2>
+    <div class="row" id="themes">
+      <button data-theme="v2" class="on">Bleu nuit</button>
+      <button data-theme="light">Clair</button>
+    </div>
+    <h2>Alerte Enlèvement</h2>
+    <div class="row">
+      <button id="kid" class="alert">Simuler une alerte (exemple fictif)</button>
+    </div>
+    <small>Dans Home Assistant, la fenêtre d'alerte s'ouvre sur toutes les vues et tous les appareils dès que deux médias titrent « Alerte enlèvement ». Ici, elle apparaît en quelques secondes ; l'alerte, la photo et le texte sont fictifs.</small>
+  </section>
 </main>
 <script>
   // éléments de Home Assistant simulés : ha-card et ha-icon
@@ -45,11 +66,46 @@
     src("Le Parisien", "le_parisien", [art("p1", "Week-end : dix idées de sorties autour de Paris", 60, "Expositions, marchés de Noël et balades : notre sélection pour profiter des derniers jours d'automne.", pic("parisien"))]),
   ]) states[s.entity_id] = s;
   const entities = Object.fromEntries(Object.keys(states).map((id) => [id, { platform: "news_fr" }]));
+  // « home-assistant » simulé : la fenêtre d'alerte lit l'état de Home Assistant sur cet élément
+  const ha = document.createElement("home-assistant");
+  document.body.appendChild(ha);
   const card = document.createElement("news-fr-card");
-  card.setConfig({ type: "custom:news-fr-card" });
-  card.hass = { states, entities, themes: { darkMode: true } };
+  const config = { type: "custom:news-fr-card", theme: "v2" };
+  const KID = "binary_sensor.actualites_france_alerte_enlevement";
+  entities[KID] = { platform: "news_fr" };
+  states[KID] = { entity_id: KID, state: "off", attributes: {} };
+  let dark = true;
+  const push = () => {
+    const hass = { states: { ...states }, entities, themes: { darkMode: dark } };
+    ha.hass = hass;
+    card.hass = hass;
+  };
+  card.setConfig(config);
+  push();
   document.getElementById("card").appendChild(card);
   window.card = card;
+
+  document.getElementById("themes").addEventListener("click", (ev) => {
+    const b = ev.target.closest("button"); if (!b) return;
+    document.querySelectorAll("#themes button").forEach((x) => x.classList.toggle("on", x === b));
+    dark = b.dataset.theme !== "light";
+    document.body.classList.toggle("light", !dark);
+    card.setConfig({ ...config, theme: dark ? "v2" : "auto" });
+    push();
+  });
+  const kid = document.getElementById("kid");
+  kid.addEventListener("click", () => {
+    const on = states[KID].state !== "on";
+    kid.classList.toggle("on", on);
+    kid.textContent = on ? "Terminer l'alerte simulée" : "Simuler une alerte (exemple fictif)";
+    states[KID] = { entity_id: KID, state: on ? "on" : "off", last_changed: new Date().toISOString(), attributes: on ? {
+      alert_id: "demo-" + Date.now(), since: new Date(now - 35 * min).toISOString(),
+      title: "EXEMPLE FICTIF — Alerte enlèvement déclenchée pour un enfant de 7 ans",
+      summary: "Exemple fictif : dans une vraie alerte, la description de l'enfant et du suspect, le lieu et l'heure de l'enlèvement diffusés par les autorités apparaissent ici.",
+      image: pic("silhouette"), url: "https://fr.wikipedia.org/wiki/Dispositif_Alerte-Enl%C3%A8vement",
+      source: "franceinfo", sources: ["franceinfo", "Le Monde"] } : {} };
+    push();
+  });
 </script>
 </body>
 </html>
