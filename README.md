@@ -64,7 +64,6 @@ Intégration et carte **non officielles** pour suivre l'actualité des **médias
 | Libération | À la une |
 | Ouest-France | À la une |
 | France 24 | Édition française |
-| Le Point | 24 h d'infos |
 
 Le Monde, BFMTV, CNews et Le Parisien sont cochés par défaut. Vous pouvez aussi **ajouter n'importe quel flux RSS ou Atom** (un média régional, un blog) dans les options : une ligne par flux, de la forme `Nom | https://adresse-du-flux`.
 
@@ -136,6 +135,10 @@ max_items: 8
 Uniquement via les [issues GitHub](https://github.com/Marlboro62/news-fr-card/issues) : une issue par demande ou par problème.
 
 ## Historique des versions
+
+### 0.1.0b3
+
+- ➖ **Le Point retiré** de la liste : son site refuse la lecture du flux par Home Assistant (réponse 403). Son capteur est supprimé automatiquement.
 
 ### 0.1.0b2
 

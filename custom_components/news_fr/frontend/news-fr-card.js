@@ -8,7 +8,7 @@
  * © 2026 Marlboro62.
  */
 (() => {
-const CARD_VERSION = "0.1.0b2";
+const CARD_VERSION = "0.1.0b3";
 
 const DEFAULTS = {
   title: "Actualités",
