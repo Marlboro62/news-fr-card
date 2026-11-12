@@ -174,9 +174,32 @@ def parse_feed(data: bytes, limit: int) -> list[dict[str, Any]]:
         items = [el for el in root if _local(el.tag) == "url"]
     else:
         raise ValueError(f"format inconnu ({kind})")
-    out = [a for a in (_article(i) for i in items) if a]
+    out = _dedupe([a for a in (_article(i) for i in items) if a])
     out.sort(key=lambda a: a["published"] or "", reverse=True)
     return out[:limit]
+
+
+def _title_key(title: str) -> str:
+    """Titre comparable : sans emoji ni ponctuation en tête, sans casse ni espaces multiples."""
+    return _SPACES.sub(" ", re.sub(r"^[^\w«\"']+", "", title, flags=re.U)).strip().casefold()
+
+
+def _dedupe(articles: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Même titre publié deux fois dans le flux (ex. France 24 : « 🔴 » direct + article) : une seule entrée,
+    celle qui a un résumé et une image, à la place de la première."""
+    kept: dict[str, int] = {}
+    out: list[dict[str, Any]] = []
+    for art in articles:
+        key = _title_key(art["title"])
+        if key not in kept:
+            kept[key] = len(out)
+            out.append(art)
+            continue
+        cur = out[kept[key]]
+        score = lambda a: (bool(a.get("summary")), bool(a.get("image")))  # noqa: E731
+        if score(art) > score(cur):
+            out[kept[key]] = {**art, "published": cur["published"] or art["published"]}
+    return out
 
 
 def parse_custom(text: str | None) -> dict[str, dict[str, str]]:

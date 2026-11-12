@@ -80,3 +80,18 @@ def test_date_dans_l_adresse():
     today, yesterday = parse_feed(xml, 5)
     assert today["published"] == "2026-11-11T23:00:00+00:00" and today["date_only"] is True
     assert yesterday["title"] == "Titre de la veille" and yesterday["published"] == "2026-11-10T23:00:00+00:00"
+
+
+def test_doublons_du_meme_titre():
+    """Même titre deux fois (France 24 : version direct « 🔴 » sans résumé, puis l'article) : une seule entrée."""
+    xml = """<rss version="2.0"><channel><title>F24</title>
+<item><title>🔴 États-Unis : victoire au Mississippi</title><link>https://ex.fr/direct</link><guid>1</guid>
+<pubDate>Thu, 12 Nov 2026 00:39:00 +0100</pubDate></item>
+<item><title>États-Unis : victoire au Mississippi</title><link>https://ex.fr/article</link><guid>2</guid>
+<pubDate>Thu, 12 Nov 2026 00:38:00 +0100</pubDate><description>Le résumé</description></item>
+<item><title>Autre titre</title><link>https://ex.fr/autre</link><guid>3</guid></item>
+</channel></rss>""".encode()
+    arts = parse_feed(xml, 10)
+    assert len(arts) == 2
+    a = next(x for x in arts if "Mississippi" in x["title"])
+    assert a["url"] == "https://ex.fr/article" and a["summary"] == "Le résumé"

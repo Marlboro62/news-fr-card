@@ -149,6 +149,10 @@ Uniquement via les [issues GitHub](https://github.com/Marlboro62/news-fr-card/is
 
 ## Historique des versions
 
+### 0.1.2b1
+
+- 🐛 **Titres en double** : quand un média publie deux fois le même titre (par exemple France 24 : la version « 🔴 » en direct sans résumé, puis l'article), une seule entrée est gardée, celle qui a un résumé et une image.
+
 ### 0.1.1
 
 - 🐛 **Le Parisien** : son flux ne donne ni date, ni résumé, ni image. Le jour de publication est tiré de l'adresse de l'article (« aujourd'hui », « hier ») ; les articles qui apparaissent ensuite prennent l'heure de leur apparition.
