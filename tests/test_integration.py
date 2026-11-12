@@ -53,3 +53,20 @@ async def test_media_retire(hass: HomeAssistant, aioclient_mock):
     await hass.async_block_till_done()
     reg = er.async_get(hass)
     assert len(er.async_entries_for_config_entry(reg, entry.entry_id)) == 1
+
+
+async def test_gros_flux_lu_en_entier(hass: HomeAssistant, aioclient_mock):
+    """Flux de plusieurs centaines de Ko : lu jusqu'au bout (un seul read() pouvait le tronquer)."""
+    items = "".join(
+        f"<item><title>Titre {i}</title><link>https://exemple.fr/{i}</link><description>{'x' * 900}</description>"
+        f"<pubDate>Wed, 11 Nov 2026 18:{i % 60:02d}:00 +0100</pubDate></item>"
+        for i in range(400)
+    )
+    big = f'<?xml version="1.0"?><rss version="2.0"><channel><title>T</title>{items}</channel></rss>'.encode()
+    aioclient_mock.get(SOURCES["lemonde"]["url"], content=big)
+    entry = MockConfigEntry(domain=DOMAIN, title="Actualités France", options={**OPTS, CONF_SOURCES: ["lemonde"]})
+    entry.add_to_hass(hass)
+    assert await hass.config_entries.async_setup(entry.entry_id)
+    await hass.async_block_till_done()
+    st = hass.states.get("sensor.actualites_france_le_monde")
+    assert st.state == "20" and not st.attributes["error"]

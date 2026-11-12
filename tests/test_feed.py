@@ -36,7 +36,7 @@ def test_rss():
     new, old = arts
     assert new["image"] == "https://exemple.fr/b.jpg" and new["author"] == "Alice"
     assert "<" not in new["summary"] and "script" not in new["summary"]
-    assert new["published"].startswith("2026-11-11T18:30:00")
+    assert new["published"].startswith("2026-11-11T17:30:00")
     assert old["summary"] == "Un résumé & du texte" and old["image"] == "https://exemple.fr/a.jpg"
     assert parse_feed(RSS, 1)[0]["title"] == "Nouveau titre « guillemets »"
 
@@ -47,7 +47,7 @@ def test_atom_et_plan_google():
     (c,) = parse_feed(SITEMAP, 5)
     assert c["title"] == "Titre CNews" and c["url"].endswith("article-1")
     assert c["image"] == "https://static.cnews.fr/img.jpg" and c["summary"] == ""
-    assert c["published"].startswith("2026-11-11T19:00:00")
+    assert c["published"].startswith("2026-11-11T18:00:00")
 
 
 def test_flux_illisible():
@@ -60,3 +60,12 @@ def test_flux_illisible():
 def test_flux_perso():
     out = parse_custom("Mon journal | https://journal.fr/rss\nmauvaise ligne\nX | ftp://non")
     assert [v["name"] for v in out.values()] == ["Mon journal"]
+
+
+def test_dates():
+    from custom_components.news_fr.feed import _date
+    assert _date("Wed, 11 Nov 2026 18:30:00 +0100") == "2026-11-11T17:30:00+00:00"
+    assert _date("2026-11-11 18:30:00") == "2026-11-11T17:30:00+00:00"  # sans fuseau : heure de Paris
+    assert _date("mer., 11 nov. 2026 18:30:00") == "2026-11-11T17:30:00+00:00"
+    assert _date("11 novembre 2026 à 18h30") == "2026-11-11T17:30:00+00:00"
+    assert _date("pas une date") is None

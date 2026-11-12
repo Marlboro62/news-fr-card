@@ -54,6 +54,7 @@ class NewsCoordinator(DataUpdateCoordinator[dict[str, dict[str, Any]]]):
         self._session = async_get_clientsession(hass)
         self._cache: dict[str, dict[str, Any]] = {}  # dernier résultat lu, gardé si un flux est en panne
         self._etag: dict[str, tuple[str | None, str | None]] = {}
+        self._first_seen: dict[str, dict[str, str]] = {}
 
     async def _fetch(self, key: str, src: dict[str, str]) -> dict[str, Any]:
         prev = self._cache.get(key, {})
@@ -71,15 +72,28 @@ class NewsCoordinator(DataUpdateCoordinator[dict[str, dict[str, Any]]]):
                     return result
                 if resp.status >= 400:
                     raise ValueError(f"le site répond {resp.status}")
-                data = await resp.content.read(MAX_BYTES + 1)
-                if len(data) > MAX_BYTES:
-                    raise ValueError("flux trop volumineux")
-                articles = await self.hass.async_add_executor_job(parse_feed, data, self.items)
+                # lecture complète par morceaux (un seul read() peut s'arrêter avant la fin du flux)
+                chunks: list[bytes] = []
+                size = 0
+                async for chunk in resp.content.iter_chunked(65536):
+                    size += len(chunk)
+                    if size > MAX_BYTES:
+                        raise ValueError("flux trop volumineux")
+                    chunks.append(chunk)
+                articles = await self.hass.async_add_executor_job(parse_feed, b"".join(chunks), self.items)
                 self._etag[key] = (resp.headers.get("ETag"), resp.headers.get("Last-Modified"))
         except (aiohttp.ClientError, TimeoutError, ValueError) as err:
             result["error"] = str(err) or type(err).__name__
             _LOGGER.warning("Flux %s (%s) : %s", src["name"], src["url"], result["error"])
             return result
+        # article sans date lisible : date de sa première lecture, pour le classer dans « À la une »
+        seen = self._first_seen.setdefault(key, {})
+        for art in articles:
+            seen.setdefault(art["id"], result["checked"])
+            if not art["published"]:
+                art["published"] = seen[art["id"]]
+        keep = {a["id"] for a in articles}
+        self._first_seen[key] = {k: v for k, v in seen.items() if k in keep}
         result["articles"] = articles
         result["updated"] = result["checked"]
         return result

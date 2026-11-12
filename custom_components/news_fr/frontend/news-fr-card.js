@@ -8,7 +8,7 @@
  * © 2026 Marlboro62.
  */
 (() => {
-const CARD_VERSION = "0.1.0b1";
+const CARD_VERSION = "0.1.0b2";
 
 const DEFAULTS = {
   title: "Actualités",
@@ -163,7 +163,8 @@ class NewsFrCard extends HTMLElement {
     const pool = this._tab === "all"
       ? sources.flatMap((s) => s.articles.map((a) => ({ ...a, src: s })))
       : sources.filter((s) => s.id === this._tab).flatMap((s) => s.articles.map((a) => ({ ...a, src: s })));
-    pool.sort((a, b) => String(b.published || "").localeCompare(String(a.published || "")));
+    const when = (a) => Date.parse(a.published || "") || 0;
+    pool.sort((a, b) => when(b) - when(a));
     const max = (Number(c.max_items) || 10) + this._more;
     const shown = pool.slice(0, max);
     const current = sources.find((s) => s.id === this._tab);
