@@ -8,7 +8,7 @@
  * © 2026 Marlboro62.
  */
 (() => {
-const CARD_VERSION = "0.1.1b1";
+const CARD_VERSION = "0.1.1b2";
 
 const DEFAULTS = {
   title: "Actualités",
@@ -29,9 +29,14 @@ const store = {
   set(k, v) { try { window.localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* stockage indisponible */ } },
 };
 
-function ago(iso) {
+function ago(iso, dateOnly) {
   const t = iso ? new Date(iso).getTime() : NaN;
   if (!Number.isFinite(t)) return "";
+  if (dateOnly) {  // jour seulement (date tirée de l'adresse de l'article)
+    const d = new Date(t), today = new Date();
+    const days = Math.round((new Date(today.getFullYear(), today.getMonth(), today.getDate()) - new Date(d.getFullYear(), d.getMonth(), d.getDate())) / 86400000);
+    return days <= 0 ? "aujourd'hui" : days === 1 ? "hier" : d.toLocaleDateString("fr-FR", { day: "numeric", month: "short" });
+  }
   const s = Math.max(0, (Date.now() - t) / 1000);
   if (s < 60) return "à l'instant";
   if (s < 3600) return `il y a ${Math.floor(s / 60)} min`;
@@ -39,9 +44,11 @@ function ago(iso) {
   if (s < 2 * 86400) return "hier";
   return new Date(t).toLocaleDateString("fr-FR", { day: "numeric", month: "short" });
 }
-const fullDate = (iso) => {
+const fullDate = (iso, dateOnly) => {
   const d = iso ? new Date(iso) : null;
-  return d && Number.isFinite(d.getTime()) ? d.toLocaleString("fr-FR", { weekday: "long", day: "numeric", month: "long", hour: "2-digit", minute: "2-digit" }) : "";
+  if (!d || !Number.isFinite(d.getTime())) return "";
+  return dateOnly ? d.toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long" })
+    : d.toLocaleString("fr-FR", { weekday: "long", day: "numeric", month: "long", hour: "2-digit", minute: "2-digit" });
 };
 
 /** Capteur « Alerte enlèvement » de l'intégration, s'il est actif. */
@@ -258,12 +265,12 @@ class NewsFrCard extends HTMLElement {
       const body = open ? `<div class="art">
           ${img ? `<img class="pic" src="${esc(img)}" alt="" loading="lazy" referrerpolicy="no-referrer">` : ""}
           <p class="sum">${a.summary ? esc(a.summary) : `<i>Pas de résumé dans le flux de ${esc(a.src.name)}.</i>`}</p>
-          <div class="am">${esc(fullDate(a.published))}${a.author ? ` · ${esc(a.author)}` : ""}</div>
+          <div class="am">${esc(fullDate(a.published, a.date_only))}${a.author ? ` · ${esc(a.author)}` : ""}</div>
           ${url ? `<a class="read" href="${esc(url)}" target="_blank" rel="noopener noreferrer"><ha-icon icon="mdi:open-in-new"></ha-icon>Lire l'article sur ${esc(a.src.name)}</a>` : ""}
         </div>` : "";
       return `<div class="row${open ? " open" : ""}">
         <button class="head" data-art="${esc(key)}" aria-expanded="${open}">
-          <span class="rb"><span class="rm"><i style="background:${a.src.color}"></i>${esc(a.src.name)}${ago(a.published) ? `<span class="when">${esc(ago(a.published))}</span>` : ""}</span>
+          <span class="rb"><span class="rm"><i style="background:${a.src.color}"></i>${esc(a.src.name)}${ago(a.published, a.date_only) ? `<span class="when">${esc(ago(a.published, a.date_only))}</span>` : ""}</span>
           <span class="rt">${esc(a.title)}</span></span>
           <ha-icon class="chev" icon="mdi:chevron-down"></ha-icon>
         </button>${body}</div>`;

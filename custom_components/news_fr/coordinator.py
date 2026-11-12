@@ -97,8 +97,9 @@ class NewsCoordinator(DataUpdateCoordinator[dict[str, dict[str, Any]]]):
         seen = self._first_seen.setdefault(key, {})
         for art in articles:
             seen.setdefault(art["id"], "" if first else result["checked"])
-            if not art["published"] and seen[art["id"]]:
-                art["published"] = seen[art["id"]]
+            if (not art["published"] or art.get("date_only")) and seen[art["id"]]:
+                art["published"] = seen[art["id"]]  # heure d'apparition dans le flux, plus précise que le jour seul
+                art["date_only"] = False
         keep = {a["id"] for a in articles}
         self._first_seen[key] = {k: v for k, v in seen.items() if k in keep}
         result["articles"] = articles

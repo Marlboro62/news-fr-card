@@ -70,7 +70,7 @@ L'intégration surveille **en permanence** le [dispositif Alerte Enlèvement](ht
 | Le Monde | À la une |
 | BFMTV | Info en continu |
 | CNews | Plan du site Google Actualités : titres et images, **sans résumé** (CNews ne publie pas de flux RSS classique) |
-| Le Parisien | À la une |
+| Le Parisien | À la une : titres seulement, **sans résumé, image ni heure** (le flux n'en contient pas ; le jour est tiré de l'adresse de l'article) |
 | franceinfo | Les titres |
 | Le Figaro | Actualités |
 | 20 Minutes | À la une |
@@ -148,6 +148,10 @@ max_items: 8
 Uniquement via les [issues GitHub](https://github.com/Marlboro62/news-fr-card/issues) : une issue par demande ou par problème.
 
 ## Historique des versions
+
+### 0.1.1b2
+
+- 🐛 **Le Parisien** : son flux ne donne ni date, ni résumé, ni image. Le jour de publication est maintenant tiré de l'adresse de l'article (« aujourd'hui », « hier ») ; les articles qui apparaissent ensuite prennent l'heure de leur apparition.
 
 ### 0.1.1b1
 
