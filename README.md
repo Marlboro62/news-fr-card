@@ -147,15 +147,16 @@ max_items: 8
 
 Uniquement via les [issues GitHub](https://github.com/Marlboro62/news-fr-card/issues) : une issue par demande ou par problème.
 
+## Voir aussi
+
+- [Actualités Canada](https://github.com/Marlboro62/news-ca-card) : la même carte pour les médias canadiens (Québec et anglophones), avec l'Alerte AMBER.
+
 ## Historique des versions
 
-### 0.1.2b2
+### 0.1.2
 
+- 🐛 **Titres en double** : quand un média publie deux fois le même titre (France 24 : version « 🔴 » en direct puis l'article), une seule entrée est gardée, celle qui a un résumé et une image.
 - 🐛 **Flux mal formés** (« & » non échappé, entités HTML, caractères de contrôle) : réparés avant lecture au lieu d'afficher « flux illisible » ; message clair quand un site renvoie une page web au lieu du flux.
-
-### 0.1.2b1
-
-- 🐛 **Titres en double** : quand un média publie deux fois le même titre (par exemple France 24 : la version « 🔴 » en direct sans résumé, puis l'article), une seule entrée est gardée, celle qui a un résumé et une image.
 
 ### 0.1.1
 
