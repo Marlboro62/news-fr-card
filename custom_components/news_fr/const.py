@@ -4,7 +4,7 @@ from __future__ import annotations
 from typing import Final
 
 DOMAIN: Final = "news_fr"
-VERSION: Final = "0.1.0b2"
+VERSION: Final = "0.1.0b3"
 NAME: Final = "Actualités France"
 
 CONF_SOURCES: Final = "sources"
@@ -36,7 +36,6 @@ SOURCES: Final[dict[str, dict[str, str]]] = {
     },
     "ouestfrance": {"name": "Ouest-France", "url": "https://www.ouest-france.fr/rss/une", "site": "https://www.ouest-france.fr"},
     "france24": {"name": "France 24", "url": "https://www.france24.com/fr/rss", "site": "https://www.france24.com/fr/"},
-    "lepoint": {"name": "Le Point", "url": "https://www.lepoint.fr/24h-infos/rss.xml", "site": "https://www.lepoint.fr"},
 }
 
 # Fichier de la carte, servi par Home Assistant et chargé dans l'interface
