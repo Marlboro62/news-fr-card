@@ -8,7 +8,7 @@
  * © 2026 Marlboro62.
  */
 (() => {
-const CARD_VERSION = "0.1.0";
+const CARD_VERSION = "0.1.1b1";
 
 const DEFAULTS = {
   title: "Actualités",
@@ -242,8 +242,10 @@ class NewsFrCard extends HTMLElement {
     const pool = this._tab === "all"
       ? sources.flatMap((s) => s.articles.map((a) => ({ ...a, src: s })))
       : sources.filter((s) => s.id === this._tab).flatMap((s) => s.articles.map((a) => ({ ...a, src: s })));
+    // articles sans date : après les articles datés, dans l'ordre du flux
     const when = (a) => Date.parse(a.published || "") || 0;
-    pool.sort((a, b) => when(b) - when(a));
+    pool.forEach((a, i) => { a._i = i; });
+    pool.sort((a, b) => when(b) - when(a) || a._i - b._i);
     const max = (Number(c.max_items) || 10) + this._more;
     const shown = pool.slice(0, max);
     const current = sources.find((s) => s.id === this._tab);
@@ -261,7 +263,7 @@ class NewsFrCard extends HTMLElement {
         </div>` : "";
       return `<div class="row${open ? " open" : ""}">
         <button class="head" data-art="${esc(key)}" aria-expanded="${open}">
-          <span class="rb"><span class="rm"><i style="background:${a.src.color}"></i>${esc(a.src.name)}<span class="when">${esc(ago(a.published))}</span></span>
+          <span class="rb"><span class="rm"><i style="background:${a.src.color}"></i>${esc(a.src.name)}${ago(a.published) ? `<span class="when">${esc(ago(a.published))}</span>` : ""}</span>
           <span class="rt">${esc(a.title)}</span></span>
           <ha-icon class="chev" icon="mdi:chevron-down"></ha-icon>
         </button>${body}</div>`;

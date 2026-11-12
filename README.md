@@ -149,6 +149,10 @@ Uniquement via les [issues GitHub](https://github.com/Marlboro62/news-fr-card/is
 
 ## Historique des versions
 
+### 0.1.1b1
+
+- 🐛 **À la une envahie par Le Parisien** : ses articles sans date lisible prenaient tous l'heure de la première lecture du flux (« il y a 5 min ») et passaient devant les autres médias. Ils passent maintenant après les articles datés ; seuls ceux qui apparaissent ensuite dans le flux prennent l'heure de leur apparition.
+
 ### 0.1.0
 
 Première version stable (regroupe les bêtas 0.1.0b1 à b4) :
