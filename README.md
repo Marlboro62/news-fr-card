@@ -149,22 +149,14 @@ Uniquement via les [issues GitHub](https://github.com/Marlboro62/news-fr-card/is
 
 ## Historique des versions
 
-### 0.1.0b4
+### 0.1.0
 
+Première version stable (regroupe les bêtas 0.1.0b1 à b4) :
+
+- 📰 **10 médias proposés** (Le Monde, BFMTV, CNews, Le Parisien cochés par défaut, puis franceinfo, Le Figaro, 20 Minutes, Libération, Ouest-France, France 24) et vos propres flux RSS ou Atom.
+- 🗂️ **Carte** chargée automatiquement : onglets par média, **À la une**, articles déroulants (image, résumé, lien vers l'article), **Voir plus**.
 - 🚨 **Alerte Enlèvement** : détection dans les titres des médias signataires, capteur `binary_sensor` et fenêtre d'alerte sur toutes les vues de Home Assistant, non désactivable ; bandeau rouge dans la carte.
-
-### 0.1.0b3
-
-- ➖ **Le Point retiré** de la liste : son site refuse la lecture du flux par Home Assistant (réponse 403). Son capteur est supprimé automatiquement.
-
-### 0.1.0b2
-
-- 🐛 **Flux tronqués** : les gros flux (Le Monde, CNews) étaient lus en partie et affichés « Flux indisponible : flux illisible ». Ils sont maintenant lus jusqu'au bout.
-- 🐛 **Dates** : plus de formats reconnus (date sans fuseau, date en toutes lettres) ; un article sans date lisible prend l'heure de sa première lecture, pour être bien classé dans **À la une**.
-
-### 0.1.0b1
-
-- Première bêta : intégration (11 médias proposés, flux RSS ou Atom ajoutés à la main) et carte (onglets par média, À la une, articles déroulants).
+- 🛠️ Flux lus en entier, dates reconnues dans plusieurs formats, flux en panne signalé (Le Point retiré : son site refuse la lecture du flux).
 
 ## Licence
 
