@@ -4,6 +4,7 @@ from __future__ import annotations
 from typing import Any
 
 from homeassistant.components.sensor import SensorEntity
+from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers.device_registry import DeviceEntryType, DeviceInfo
@@ -21,9 +22,20 @@ async def async_setup_entry(hass: HomeAssistant, entry: NewsConfigEntry, async_a
     # média retiré dans les options : son capteur est supprimé au lieu de rester « indisponible »
     reg = er.async_get(hass)
     for ent in er.async_entries_for_config_entry(reg, entry.entry_id):
-        if ent.unique_id not in wanted:
+        if ent.domain == "sensor" and ent.unique_id not in wanted:
             reg.async_remove(ent.entity_id)
     async_add_entities(NewsSensor(coordinator, key) for key in coordinator.sources)
+
+
+def device_info(entry: ConfigEntry) -> DeviceInfo:
+    return DeviceInfo(
+        identifiers={(DOMAIN, entry.entry_id)},
+        name=entry.title or NAME,
+        manufacturer="Marlboro62 (non officiel)",
+        model="Flux RSS des médias français",
+        sw_version=VERSION,
+        entry_type=DeviceEntryType.SERVICE,
+    )
 
 
 class NewsSensor(CoordinatorEntity[NewsCoordinator], SensorEntity):
@@ -39,14 +51,7 @@ class NewsSensor(CoordinatorEntity[NewsCoordinator], SensorEntity):
         self._key = key
         self._attr_unique_id = f"{entry.entry_id}_{key}"
         self._attr_name = coordinator.sources[key]["name"]
-        self._attr_device_info = DeviceInfo(
-            identifiers={(DOMAIN, entry.entry_id)},
-            name=entry.title or NAME,
-            manufacturer="Marlboro62 (non officiel)",
-            model="Flux RSS des médias français",
-            sw_version=VERSION,
-            entry_type=DeviceEntryType.SERVICE,
-        )
+        self._attr_device_info = device_info(entry)
 
     @property
     def _data(self) -> dict[str, Any]:

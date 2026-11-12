@@ -26,6 +26,7 @@ from .const import (
     SOURCES,
     VERSION,
 )
+from .alert import ALERT_SOURCES, detect
 from .feed import parse_custom, parse_feed
 
 _LOGGER = logging.getLogger(__name__)
@@ -55,6 +56,9 @@ class NewsCoordinator(DataUpdateCoordinator[dict[str, dict[str, Any]]]):
         self._cache: dict[str, dict[str, Any]] = {}  # dernier résultat lu, gardé si un flux est en panne
         self._etag: dict[str, tuple[str | None, str | None]] = {}
         self._first_seen: dict[str, dict[str, str]] = {}
+        # Alerte Enlèvement : médias signataires lus en plus, sans capteur ni onglet s'ils ne sont pas cochés
+        self._alert_only = {k: SOURCES[k] for k in ALERT_SOURCES if k not in self.sources}
+        self.alert: dict[str, Any] = {"active": False}
 
     async def _fetch(self, key: str, src: dict[str, str]) -> dict[str, Any]:
         prev = self._cache.get(key, {})
@@ -99,9 +103,12 @@ class NewsCoordinator(DataUpdateCoordinator[dict[str, dict[str, Any]]]):
         return result
 
     async def _async_update_data(self) -> dict[str, dict[str, Any]]:
-        keys = list(self.sources)
-        results = await asyncio.gather(*(self._fetch(k, self.sources[k]) for k in keys))
+        every = {**self.sources, **self._alert_only}
+        keys = list(every)
+        results = await asyncio.gather(*(self._fetch(k, every[k]) for k in keys))
         self._cache = dict(zip(keys, results, strict=True))
-        if keys and all(r["error"] and not r["articles"] for r in results):
-            raise UpdateFailed("aucun flux lisible : " + " ; ".join(f"{r['name']} : {r['error']}" for r in results))
-        return self._cache
+        self.alert = detect({k: self._cache[k] for k in ALERT_SOURCES if k in self._cache})
+        mine = [self._cache[k] for k in self.sources]
+        if mine and all(r["error"] and not r["articles"] for r in mine):
+            raise UpdateFailed("aucun flux lisible : " + " ; ".join(f"{r['name']} : {r['error']}" for r in mine))
+        return {k: self._cache[k] for k in self.sources}
