@@ -8,6 +8,7 @@ import html
 import re
 from typing import Any
 import xml.etree.ElementTree as ET
+from zoneinfo import ZoneInfo
 
 SUMMARY_MAX = 600
 _TAGS = re.compile(r"<[^>]+>")
@@ -34,20 +35,41 @@ def _web(url: str | None) -> str | None:
     return url if url.startswith(("https://", "http://")) else None
 
 
+_MONTHS = {"janv": 1, "jan": 1, "févr": 2, "fevr": 2, "fév": 2, "feb": 2, "mars": 3, "mar": 3, "avr": 4, "apr": 4, "mai": 5, "may": 5,
+           "juin": 6, "jun": 6, "juil": 7, "jul": 7, "août": 8, "aout": 8, "aug": 8, "sept": 9, "sep": 9, "oct": 10,
+           "nov": 11, "déc": 12, "dec": 12}
+_LOOSE = re.compile(r"(\d{1,2})\s+([a-zéû]+)\.?\s+(\d{4})(?:\s+(?:à\s+)?(\d{1,2})[:h](\d{2})(?::(\d{2}))?)?", re.I)
+
+
 def _date(value: str | None) -> str | None:
+    """Date de l'article : RSS (RFC 822), ISO 8601 (Atom, Google Actualités) ou date en toutes lettres (« 11 nov. 2026 18:30 »)."""
     value = (value or "").strip()
     if not value:
         return None
+    when = None
     try:
-        when = parsedate_to_datetime(value)  # RSS : « Wed, 11 Nov 2026 18:00:00 +0100 »
+        when = parsedate_to_datetime(value)  # « Wed, 11 Nov 2026 18:00:00 +0100 »
     except (TypeError, ValueError, IndexError):
+        pass
+    if when is None:
         try:
-            when = datetime.fromisoformat(value.replace("Z", "+00:00"))  # Atom, Google Actualités
+            when = datetime.fromisoformat(value.replace("Z", "+00:00"))  # « 2026-11-11T18:00:00+01:00 », « 2026-11-11 18:00:00 »
         except ValueError:
-            return None
+            pass
+    if when is None and (m := _LOOSE.search(value)):
+        name = m.group(2).lower()
+        month = next((v for k, v in sorted(_MONTHS.items(), key=lambda kv: -len(kv[0])) if name.startswith(k)), None)
+        if month:
+            try:
+                when = datetime(int(m.group(3)), month, int(m.group(1)), int(m.group(4) or 0), int(m.group(5) or 0),
+                                int(m.group(6) or 0), tzinfo=ZoneInfo("Europe/Paris"))
+            except ValueError:
+                when = None
+    if when is None:
+        return None
     if when.tzinfo is None:
-        when = when.replace(tzinfo=UTC)
-    return when.isoformat()
+        when = when.replace(tzinfo=ZoneInfo("Europe/Paris"))  # médias français : heure de Paris
+    return when.astimezone(UTC).isoformat()  # en UTC : les dates se comparent et se trient telles quelles
 
 
 def _children(node: ET.Element) -> dict[str, list[ET.Element]]:

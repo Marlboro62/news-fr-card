@@ -137,6 +137,11 @@ Uniquement via les [issues GitHub](https://github.com/Marlboro62/news-fr-card/is
 
 ## Historique des versions
 
+### 0.1.0b2
+
+- 🐛 **Flux tronqués** : les gros flux (Le Monde, CNews) étaient lus en partie et affichés « Flux indisponible : flux illisible ». Ils sont maintenant lus jusqu'au bout.
+- 🐛 **Dates** : plus de formats reconnus (date sans fuseau, date en toutes lettres) ; un article sans date lisible prend l'heure de sa première lecture, pour être bien classé dans **À la une**.
+
 ### 0.1.0b1
 
 - Première bêta : intégration (11 médias proposés, flux RSS ou Atom ajoutés à la main) et carte (onglets par média, À la une, articles déroulants).
