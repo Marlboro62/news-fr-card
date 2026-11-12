@@ -157,12 +157,40 @@ def _article(item: ET.Element) -> dict[str, Any] | None:
     }
 
 
+_BARE_AMP = re.compile(rb"&(?!(?:[a-zA-Z][a-zA-Z0-9]{1,31}|#[0-9]{1,7}|#x[0-9a-fA-F]{1,6});)")
+_CTRL = re.compile(rb"[\x00-\x08\x0b\x0c\x0e-\x1f]")
+_HTML_ENTITY = re.compile(rb"&([a-zA-Z][a-zA-Z0-9]{1,31});")
+_XML_ENTITIES = {b"amp", b"lt", b"gt", b"quot", b"apos"}
+
+
+def _repair(data: bytes) -> bytes:
+    """Répare les fautes courantes des flux : « & » non échappé, entités HTML (&nbsp;…), caractères de contrôle."""
+    data = _CTRL.sub(b"", data)
+    data = _BARE_AMP.sub(b"&amp;", data)
+
+    def entity(m: re.Match[bytes]) -> bytes:
+        name = m.group(1)
+        if name in _XML_ENTITIES:
+            return m.group(0)
+        char = html.unescape(f"&{name.decode()};")
+        return char.encode("utf-8") if char != f"&{name.decode()};" else b"&amp;" + name + b";"
+
+    return _HTML_ENTITY.sub(entity, data)
+
+
 def parse_feed(data: bytes, limit: int) -> list[dict[str, Any]]:
     """Articles du flux, du plus récent au plus ancien. ValueError si le flux est illisible."""
+    head = data[:512].lstrip().lower()
+    if head.startswith((b"<!doctype html", b"<html")) or not head:
+        raise ValueError("le site renvoie une page web (ou une page vide) au lieu du flux")
     try:
         root = ET.fromstring(data)
     except ET.ParseError as err:
-        raise ValueError(f"flux illisible ({err})") from err
+        # flux mal formé (« & » non échappé, caractère de contrôle) : nouvel essai après réparation
+        try:
+            root = ET.fromstring(_repair(data))
+        except ET.ParseError:
+            raise ValueError(f"flux illisible ({err})") from err
     kind = _local(root.tag)
     if kind == "rss":
         items = [el for ch in root if _local(ch.tag) == "channel" for el in ch if _local(el.tag) == "item"]

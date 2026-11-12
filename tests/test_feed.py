@@ -95,3 +95,19 @@ def test_doublons_du_meme_titre():
     assert len(arts) == 2
     a = next(x for x in arts if "Mississippi" in x["title"])
     assert a["url"] == "https://ex.fr/article" and a["summary"] == "Le résumé"
+
+
+def test_flux_mal_forme_repare():
+    """« & » non échappé et entité HTML (&nbsp;) : flux réparé et lu."""
+    xml = b"""<rss version="2.0"><channel><title>T</title>
+<item><title>Sant\xc3\xa9 & services&nbsp;: le point</title><link>https://ex.ca/a?x=1&y=2</link></item>
+</channel></rss>"""
+    (a,) = parse_feed(xml, 5)
+    assert a["title"] == "Santé & services : le point" and a["url"] == "https://ex.ca/a?x=1&y=2"
+
+
+def test_page_web_au_lieu_du_flux():
+    with pytest.raises(ValueError, match="page web"):
+        parse_feed(b"<!DOCTYPE html><html><body>Blocked</body></html>", 5)
+    with pytest.raises(ValueError, match="page web"):
+        parse_feed(b"", 5)
