@@ -69,3 +69,14 @@ def test_dates():
     assert _date("mer., 11 nov. 2026 18:30:00") == "2026-11-11T17:30:00+00:00"
     assert _date("11 novembre 2026 à 18h30") == "2026-11-11T17:30:00+00:00"
     assert _date("pas une date") is None
+
+
+def test_date_dans_l_adresse():
+    """Le Parisien : ni date, ni résumé, ni image ; le jour est dans l'adresse de l'article."""
+    xml = """<rss version="2.0"><channel><title>Le Parisien</title>
+<item><title>Titre du jour</title><link>https://www.leparisien.fr/societe/titre-du-jour-12-11-2026-6RITFRLJOZB4ZFQWQJXPNI6SJ4.php</link></item>
+<item><title>Titre de la veille</title><link>https://www.leparisien.fr/sports/titre-11-11-2026-FF2G53AULRE43E7ILKOM5I2QXM.php</link></item>
+</channel></rss>""".encode()
+    today, yesterday = parse_feed(xml, 5)
+    assert today["published"] == "2026-11-11T23:00:00+00:00" and today["date_only"] is True
+    assert yesterday["title"] == "Titre de la veille" and yesterday["published"] == "2026-11-10T23:00:00+00:00"

@@ -72,6 +72,20 @@ def _date(value: str | None) -> str | None:
     return when.astimezone(UTC).isoformat()  # en UTC : les dates se comparent et se trient telles quelles
 
 
+_URL_DAY = re.compile(r"[/-](\d{2})-(\d{2})-(\d{4})(?=[/-])")
+
+
+def _url_day(url: str) -> str | None:
+    """Jour de publication inscrit dans l'adresse (Le Parisien : « …-12-11-2026-ID.php »), à défaut de date dans le flux."""
+    if m := _URL_DAY.search(url):
+        try:
+            day = datetime(int(m.group(3)), int(m.group(2)), int(m.group(1)), tzinfo=ZoneInfo("Europe/Paris"))
+        except ValueError:
+            return None
+        return day.astimezone(UTC).isoformat()
+    return None
+
+
 def _children(node: ET.Element) -> dict[str, list[ET.Element]]:
     out: dict[str, list[ET.Element]] = {}
     for child in node:
@@ -127,6 +141,9 @@ def _article(item: ET.Element) -> dict[str, Any] | None:
     raw_summary = _first(kids, "description", "summary", "content")
     summary = _text(raw_summary, SUMMARY_MAX)
     published = _date(_first(kids, "pubDate", "published", "updated", "date") or _first(news_kids, "publication_date"))
+    date_only = False
+    if not published and (published := _url_day(url)):
+        date_only = True  # jour seulement : la carte affiche « aujourd'hui », « hier » ou la date
     guid = (_first(kids, "guid", "id") or url).strip()
     return {
         "id": hashlib.sha1(guid.encode()).hexdigest()[:12],
@@ -135,6 +152,7 @@ def _article(item: ET.Element) -> dict[str, Any] | None:
         "summary": summary if summary != title else "",
         "image": _image(item, kids, raw_summary),
         "published": published,
+        "date_only": date_only,
         "author": _text(_first(kids, "creator", "author"), 80) or None,
     }
 
