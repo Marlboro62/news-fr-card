@@ -149,13 +149,10 @@ Uniquement via les [issues GitHub](https://github.com/Marlboro62/news-fr-card/is
 
 ## Historique des versions
 
-### 0.1.1b2
+### 0.1.1
 
-- 🐛 **Le Parisien** : son flux ne donne ni date, ni résumé, ni image. Le jour de publication est maintenant tiré de l'adresse de l'article (« aujourd'hui », « hier ») ; les articles qui apparaissent ensuite prennent l'heure de leur apparition.
-
-### 0.1.1b1
-
-- 🐛 **À la une envahie par Le Parisien** : ses articles sans date lisible prenaient tous l'heure de la première lecture du flux (« il y a 5 min ») et passaient devant les autres médias. Ils passent maintenant après les articles datés ; seuls ceux qui apparaissent ensuite dans le flux prennent l'heure de leur apparition.
+- 🐛 **Le Parisien** : son flux ne donne ni date, ni résumé, ni image. Le jour de publication est tiré de l'adresse de l'article (« aujourd'hui », « hier ») ; les articles qui apparaissent ensuite prennent l'heure de leur apparition.
+- 🐛 **À la une** : les articles sans heure passent après les articles datés au lieu d'envahir le haut de la liste.
 
 ### 0.1.0
 
