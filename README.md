@@ -149,6 +149,10 @@ Uniquement via les [issues GitHub](https://github.com/Marlboro62/news-fr-card/is
 
 ## Historique des versions
 
+### 0.1.2b2
+
+- 🐛 **Flux mal formés** (« & » non échappé, entités HTML, caractères de contrôle) : réparés avant lecture au lieu d'afficher « flux illisible » ; message clair quand un site renvoie une page web au lieu du flux.
+
 ### 0.1.2b1
 
 - 🐛 **Titres en double** : quand un média publie deux fois le même titre (par exemple France 24 : la version « 🔴 » en direct sans résumé, puis l'article), une seule entrée est gardée, celle qui a un résumé et une image.
