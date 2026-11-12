@@ -90,11 +90,14 @@ class NewsCoordinator(DataUpdateCoordinator[dict[str, dict[str, Any]]]):
             result["error"] = str(err) or type(err).__name__
             _LOGGER.warning("Flux %s (%s) : %s", src["name"], src["url"], result["error"])
             return result
-        # article sans date lisible : date de sa première lecture, pour le classer dans « À la une »
+        # Article sans date lisible : heure à laquelle il est apparu dans le flux, pour le classer dans « À la une ».
+        # À la première lecture du flux, cette heure est inconnue (les articles déjà présents ne sont pas « nouveaux ») :
+        # ils restent sans date et passent après les articles datés.
+        first = key not in self._first_seen
         seen = self._first_seen.setdefault(key, {})
         for art in articles:
-            seen.setdefault(art["id"], result["checked"])
-            if not art["published"]:
+            seen.setdefault(art["id"], "" if first else result["checked"])
+            if not art["published"] and seen[art["id"]]:
                 art["published"] = seen[art["id"]]
         keep = {a["id"] for a in articles}
         self._first_seen[key] = {k: v for k, v in seen.items() if k in keep}
