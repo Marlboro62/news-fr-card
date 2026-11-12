@@ -9,12 +9,22 @@ from custom_components.news_fr.const import CONF_CUSTOM, CONF_ITEMS, CONF_SCAN_M
 
 from .test_feed import RSS
 
+EMPTY = b'<?xml version="1.0"?><rss version="2.0"><channel><title>Vide</title></channel></rss>'
+
+
+def mock_rest(aioclient_mock):
+    """Autres flux (dont ceux lus pour l'Alerte Enlèvement) : vides. Les flux simulés avant restent prioritaires."""
+    for src in SOURCES.values():
+        aioclient_mock.get(src["url"], content=EMPTY)
+
+
 OPTS = {CONF_SOURCES: ["lemonde", "bfmtv"], CONF_CUSTOM: "", CONF_ITEMS: 20, CONF_SCAN_MINUTES: 15}
 
 
 async def test_parametrage(hass: HomeAssistant, aioclient_mock):
     aioclient_mock.get(SOURCES["lemonde"]["url"], content=RSS)
     aioclient_mock.get(SOURCES["bfmtv"]["url"], content=RSS)
+    mock_rest(aioclient_mock)
     result = await hass.config_entries.flow.async_init(DOMAIN, context={"source": config_entries.SOURCE_USER})
     assert result["type"] is FlowResultType.FORM
     bad = await hass.config_entries.flow.async_configure(result["flow_id"], {**OPTS, CONF_CUSTOM: "pas bon"})
@@ -28,11 +38,14 @@ async def test_parametrage(hass: HomeAssistant, aioclient_mock):
     assert len(states) == 2
     st = hass.states.get("sensor.actualites_france_le_monde")
     assert st.state == "2" and st.attributes["articles"][0]["title"] == "Nouveau titre « guillemets »"
+    alert = [s for s in hass.states.async_all("binary_sensor")]
+    assert len(alert) == 1 and alert[0].state == "off"
 
 
 async def test_un_flux_en_panne(hass: HomeAssistant, aioclient_mock):
     aioclient_mock.get(SOURCES["lemonde"]["url"], content=RSS)
     aioclient_mock.get(SOURCES["bfmtv"]["url"], status=503)
+    mock_rest(aioclient_mock)
     entry = MockConfigEntry(domain=DOMAIN, title="Actualités France", options=OPTS)
     entry.add_to_hass(hass)
     assert await hass.config_entries.async_setup(entry.entry_id)
@@ -45,6 +58,7 @@ async def test_un_flux_en_panne(hass: HomeAssistant, aioclient_mock):
 async def test_media_retire(hass: HomeAssistant, aioclient_mock):
     aioclient_mock.get(SOURCES["lemonde"]["url"], content=RSS)
     aioclient_mock.get(SOURCES["bfmtv"]["url"], content=RSS)
+    mock_rest(aioclient_mock)
     entry = MockConfigEntry(domain=DOMAIN, title="Actualités France", options=OPTS)
     entry.add_to_hass(hass)
     assert await hass.config_entries.async_setup(entry.entry_id)
@@ -52,7 +66,9 @@ async def test_media_retire(hass: HomeAssistant, aioclient_mock):
     hass.config_entries.async_update_entry(entry, options={**OPTS, CONF_SOURCES: ["lemonde"]})
     await hass.async_block_till_done()
     reg = er.async_get(hass)
-    assert len(er.async_entries_for_config_entry(reg, entry.entry_id)) == 1
+    ents = er.async_entries_for_config_entry(reg, entry.entry_id)
+    # capteur du média retiré supprimé ; le capteur d'alerte enlèvement reste
+    assert sorted(e.domain for e in ents) == ["binary_sensor", "sensor"]
 
 
 async def test_gros_flux_lu_en_entier(hass: HomeAssistant, aioclient_mock):
@@ -64,6 +80,7 @@ async def test_gros_flux_lu_en_entier(hass: HomeAssistant, aioclient_mock):
     )
     big = f'<?xml version="1.0"?><rss version="2.0"><channel><title>T</title>{items}</channel></rss>'.encode()
     aioclient_mock.get(SOURCES["lemonde"]["url"], content=big)
+    mock_rest(aioclient_mock)
     entry = MockConfigEntry(domain=DOMAIN, title="Actualités France", options={**OPTS, CONF_SOURCES: ["lemonde"]})
     entry.add_to_hass(hass)
     assert await hass.config_entries.async_setup(entry.entry_id)

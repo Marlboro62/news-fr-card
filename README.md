@@ -48,7 +48,20 @@ Intégration et carte **non officielles** pour suivre l'actualité des **médias
 - **Voir plus** en bas de la liste pour afficher les titres suivants.
 - **Un capteur par média** (nombre d'articles lus, articles en attributs), sans historique dans la base de Home Assistant.
 - **Flux en panne** : la carte le signale et garde les derniers titres lus ; les autres médias continuent de s'afficher.
+- **Alerte Enlèvement** : fenêtre d'alerte sur toutes les vues de Home Assistant quand une alerte est en cours (voir plus bas).
 - **Thème** bleu nuit (par défaut), clair automatique ou thème de Home Assistant.
+
+## 🚨 Alerte Enlèvement
+
+L'intégration surveille **en permanence** le [dispositif Alerte Enlèvement](https://fr.wikipedia.org/wiki/Dispositif_Alerte-Enl%C3%A8vement) : quand il est déclenché, les médias signataires de la convention doivent diffuser l'alerte au moins trois heures.
+
+- Les titres de **franceinfo, Le Monde, BFMTV, 20 Minutes et Le Parisien** sont lus pour la détection, même s'ils ne sont pas cochés (sans onglet ni capteur supplémentaire).
+- L'alerte est considérée **en cours** quand **au moins deux médias différents** titrent « Alerte enlèvement » dans les 6 dernières heures, et **terminée** dès qu'un article annonce sa levée ou que l'enfant est retrouvé (sinon 6 heures après le dernier article).
+- Le capteur `binary_sensor.actualites_france_alerte_enlevement` passe à **on**, avec en attributs le titre, le résumé, la photo, le lien et les médias : utilisable dans vos automatisations (notification, annonce vocale…).
+- Une **fenêtre d'alerte** s'ouvre par-dessus Home Assistant, **sur toutes les vues et tous les appareils**, même sans la carte affichée. Elle n'est **pas désactivable** : **J'ai pris connaissance** la ferme pour cette alerte, sur cet appareil.
+- La carte affiche aussi un **bandeau rouge** tant que l'alerte est en cours.
+
+> Si vous avez une information sur une alerte en cours, **appelez le 197** et n'intervenez pas vous-même. La source officielle reste le ministère de la Justice et les médias : cette détection automatique peut avoir du retard sur l'alerte réelle.
 
 ## Médias proposés
 
@@ -135,6 +148,10 @@ max_items: 8
 Uniquement via les [issues GitHub](https://github.com/Marlboro62/news-fr-card/issues) : une issue par demande ou par problème.
 
 ## Historique des versions
+
+### 0.1.0b4
+
+- 🚨 **Alerte Enlèvement** : détection dans les titres des médias signataires, capteur `binary_sensor` et fenêtre d'alerte sur toutes les vues de Home Assistant, non désactivable ; bandeau rouge dans la carte.
 
 ### 0.1.0b3
 

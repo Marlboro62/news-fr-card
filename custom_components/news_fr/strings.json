@@ -49,5 +49,12 @@
         }
       }
     }
+  },
+  "entity": {
+    "binary_sensor": {
+      "kidnap_alert": {
+        "name": "Kidnapping alert"
+      }
+    }
   }
 }

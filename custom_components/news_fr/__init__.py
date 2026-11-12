@@ -17,7 +17,7 @@ from .const import CARD_FILE, CARD_URL, DOMAIN, VERSION
 from .coordinator import NewsCoordinator
 
 _LOGGER = logging.getLogger(__name__)
-PLATFORMS = [Platform.SENSOR]
+PLATFORMS = [Platform.BINARY_SENSOR, Platform.SENSOR]
 CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
 
 type NewsConfigEntry = ConfigEntry[NewsCoordinator]
