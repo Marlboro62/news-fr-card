@@ -8,7 +8,7 @@
  * © 2026 Marlboro62.
  */
 (() => {
-const CARD_VERSION = "0.1.2";
+const CARD_VERSION = "0.1.3b1";
 
 const DEFAULTS = {
   title: "Actualités",
@@ -133,31 +133,9 @@ class NewsFrCard extends HTMLElement {
     return {};
   }
 
-  /** Éditeur visuel : formulaire de Home Assistant. */
-  static getConfigForm() {
-    return {
-      schema: [
-        { name: "title", selector: { text: {} } },
-        { name: "entities", selector: { entity: { multiple: true, filter: { integration: "news_fr" } } } },
-        { name: "max_items", selector: { number: { min: 3, max: 50, mode: "box" } } },
-        { type: "grid", name: "", schema: [
-          { name: "show_all", selector: { boolean: {} } },
-          { name: "show_images", selector: { boolean: {} } },
-        ] },
-        { name: "theme", selector: { select: { mode: "dropdown", options: [
-          { value: "v2", label: "Bleu nuit (style des cartes MyElectricalData)" },
-          { value: "auto", label: "Bleu nuit, clair si Home Assistant est en mode clair" },
-          { value: "ha", label: "Thème de Home Assistant" }] } } },
-      ],
-      computeLabel: (s) => ({
-        title: "Titre",
-        entities: "Médias affichés (vide : tous les médias de l'intégration, dans cet ordre)",
-        max_items: "Nombre de titres affichés (« Voir plus » pour la suite)",
-        show_all: "Onglet « À la une » (tous les médias mélangés, du plus récent au plus ancien)",
-        show_images: "Image de l'article quand on le déroule",
-        theme: "Couleurs de la carte",
-      }[s.name]),
-    };
+  /** Éditeur visuel : réglages de la carte, et liste des médias à ordonner. */
+  static getConfigElement() {
+    return document.createElement("news-fr-card-editor");
   }
 
   setConfig(config) {
@@ -198,13 +176,14 @@ class NewsFrCard extends HTMLElement {
   _sources() {
     const st = this._hass?.states || {};
     // capteurs des médias seulement (l'alerte enlèvement est un binary_sensor, affiché à part)
+    const all = Object.entries(this._hass?.entities || {}).filter(([id, e]) => e.platform === "news_fr" && id.startsWith("sensor.") && st[id]).map(([id]) => id);
     let ids = (this._config.entities || []).filter((id) => id.startsWith("sensor.") && st[id]);
-    if (!ids.length) {
-      ids = Object.entries(this._hass?.entities || {}).filter(([id, e]) => e.platform === "news_fr" && id.startsWith("sensor.") && st[id]).map(([id]) => id);
-    }
+    if (!ids.length) ids = all;
     return ids.map((id, i) => {
       const s = st[id], a = s.attributes || {};
-      return { id, i, name: a.friendly_name?.replace(/^Actualités France\s*/i, "") || id, color: COLORS[i % COLORS.length],
+      // couleur fixe pour chaque média, même quand l'ordre des onglets change
+      const k = all.indexOf(id) >= 0 ? all.indexOf(id) : i;
+      return { id, i, name: a.friendly_name?.replace(/^Actualités France\s*/i, "") || id, color: COLORS[k % COLORS.length],
         site: safeUrl(a.site), error: a.error, updated: a.updated, articles: Array.isArray(a.articles) ? a.articles : [], last: s.last_updated };
     });
   }
@@ -364,7 +343,144 @@ header { display: flex; align-items: center; justify-content: space-between; gap
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 </style>`;
 
+const EDITOR_SCHEMA = [
+  { name: "title", selector: { text: {} } },
+  { name: "max_items", selector: { number: { min: 3, max: 50, mode: "box" } } },
+  { type: "grid", name: "", schema: [
+    { name: "show_all", selector: { boolean: {} } },
+    { name: "show_images", selector: { boolean: {} } },
+  ] },
+  { name: "theme", selector: { select: { mode: "dropdown", options: [
+    { value: "v2", label: "Bleu nuit (style des cartes MyElectricalData)" },
+    { value: "auto", label: "Bleu nuit, clair si Home Assistant est en mode clair" },
+    { value: "ha", label: "Thème de Home Assistant" }] } } },
+];
+const EDITOR_LABELS = {
+  title: "Titre",
+  max_items: "Nombre de titres affichés (« Voir plus » pour la suite)",
+  show_all: "Onglet « À la une » (tous les médias mélangés, du plus récent au plus ancien)",
+  show_images: "Image de l'article quand on le déroule",
+  theme: "Couleurs de la carte",
+};
+
+/** Éditeur : formulaire de Home Assistant pour les réglages, puis les médias de l'intégration dans l'ordre
+ *  des onglets, avec ↑ / ↓ pour les déplacer et une case pour les afficher ou les masquer. */
+class NewsFrCardEditor extends HTMLElement {
+  setConfig(config) {
+    this._config = { ...(config || {}) };
+    this._draw();
+  }
+
+  set hass(hass) {
+    this._hass = hass;
+    this._draw();
+  }
+
+  _emit() {
+    this.dispatchEvent(new CustomEvent("config-changed", { detail: { config: this._config }, bubbles: true, composed: true }));
+  }
+
+  /** Tous les médias de l'intégration (capteurs news_fr), dans l'ordre de Home Assistant. */
+  _all() {
+    const st = this._hass?.states || {};
+    return Object.entries(this._hass?.entities || {})
+      .filter(([id, e]) => e.platform === "news_fr" && id.startsWith("sensor.") && st[id]).map(([id]) => id);
+  }
+
+  /** Ordre affiché : les médias choisis d'abord (dans leur ordre), puis les autres, masqués. */
+  _rows() {
+    const all = this._all();
+    const chosen = (this._config.entities || []).filter((id) => all.includes(id));
+    const shown = chosen.length ? chosen : all;
+    return [...shown.map((id) => ({ id, on: true })), ...all.filter((id) => !shown.includes(id)).map((id) => ({ id, on: false }))];
+  }
+
+  _save(rows) {
+    const on = rows.filter((r) => r.on).map((r) => r.id);
+    const all = this._all();
+    const v = { ...this._config };
+    // tous les médias, dans l'ordre de Home Assistant : rien à écrire, la carte prend tout
+    if (on.length === all.length && on.every((id, i) => id === all[i])) delete v.entities;
+    else v.entities = on;
+    this._config = v;
+    this._emit();
+    this._drawList();
+  }
+
+  _name(id) {
+    const n = this._hass?.states?.[id]?.attributes?.friendly_name || id;
+    return n.replace(/^Actualités France\s*/i, "") || id;
+  }
+
+  _draw() {
+    if (!this._hass || !this._config) return;
+    if (!this._form) {
+      this._form = document.createElement("ha-form");
+      this._form.computeLabel = (sch) => EDITOR_LABELS[sch.name] || sch.name;
+      this._form.schema = EDITOR_SCHEMA;
+      this._form.addEventListener("value-changed", (ev) => {
+        const { entities } = this._config;
+        this._config = { ...ev.detail.value, ...(entities ? { entities } : {}) };
+        this._emit();
+      });
+      this._list = document.createElement("div");
+      this._list.className = "nf-order";
+      this._list.addEventListener("click", (ev) => {
+        const b = ev.target.closest("button[data-mv]");
+        if (!b) return;
+        const rows = this._rows(), i = Number(b.dataset.i), j = i + Number(b.dataset.mv);
+        if (j < 0 || j >= rows.length) return;
+        [rows[i], rows[j]] = [rows[j], rows[i]];
+        // un média masqué remonté parmi les affichés devient affiché
+        if (rows[j].on === false && rows.slice(0, j).every((r) => r.on)) rows[j].on = true;
+        this._save(rows);
+      });
+      this._list.addEventListener("change", (ev) => {
+        const c = ev.target.closest("input[data-i]");
+        if (!c) return;
+        const rows = this._rows();
+        rows[Number(c.dataset.i)].on = c.checked;
+        if (!rows.some((r) => r.on)) { c.checked = true; return; }
+        this._save(rows);
+      });
+      this.append(this._form, this._list);
+    }
+    this._form.hass = this._hass;
+    const { entities: _e, ...rest } = this._config;
+    this._form.data = { ...DEFAULTS, ...rest };
+    this._drawList();
+  }
+
+  _drawList() {
+    const rows = this._rows();
+    const btn = (i, mv, label, icon, off) => `<button type="button" data-i="${i}" data-mv="${mv}" title="${label}" aria-label="${label}"${off ? " disabled" : ""}><ha-icon icon="${icon}"></ha-icon></button>`;
+    this._list.innerHTML = `<style>
+      .nf-order { margin-top: 20px; }
+      .nf-order h3 { margin: 0 0 4px; font-size: 1rem; font-weight: 500; }
+      .nf-order p { margin: 0 0 10px; font-size: .85rem; color: var(--secondary-text-color); }
+      .nf-row { display: flex; align-items: center; gap: 10px; padding: 6px 8px; border: 1px solid var(--divider-color, #e0e0e0);
+        border-radius: 10px; margin-bottom: 6px; }
+      .nf-row.off { opacity: .55; }
+      .nf-row label { flex: 1; display: flex; align-items: center; gap: 10px; cursor: pointer; min-width: 0; }
+      .nf-row label span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      .nf-row input { width: 18px; height: 18px; accent-color: var(--primary-color); flex: none; }
+      .nf-row button { all: unset; cursor: pointer; display: grid; place-items: center; width: 32px; height: 32px; border-radius: 8px;
+        color: var(--primary-text-color); --mdc-icon-size: 20px; }
+      .nf-row button:hover { background: var(--secondary-background-color, rgba(127,127,127,.15)); }
+      .nf-row button:focus-visible { outline: 2px solid var(--primary-color); }
+      .nf-row button[disabled] { opacity: .25; cursor: default; }
+    </style>
+    <h3>Médias et ordre des onglets</h3>
+    <p>Les flèches déplacent un média ; décocher le masque de la carte.</p>
+    ${rows.length ? rows.map((r, i) => `<div class="nf-row${r.on ? "" : " off"}">
+      <label><input type="checkbox" data-i="${i}"${r.on ? " checked" : ""}><span>${esc(this._name(r.id))}</span></label>
+      ${btn(i, -1, "Monter", "mdi:arrow-up", i === 0)}${btn(i, 1, "Descendre", "mdi:arrow-down", i === rows.length - 1)}
+    </div>`).join("") : "<p>Aucun média : ajoutez d'abord l'intégration Actualités France.</p>"}`;
+  }
+}
+
 if (!customElements.get("news-fr-card")) customElements.define("news-fr-card", NewsFrCard);
+if (!customElements.get("news-fr-card-editor")) customElements.define("news-fr-card-editor", NewsFrCardEditor);
 window.customCards = window.customCards || [];
 if (!window.customCards.some((c) => c.type === "news-fr-card")) {
   window.customCards.push({

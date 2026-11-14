@@ -118,7 +118,7 @@ type: custom:news-fr-card
 | Option | Rôle | Défaut |
 | --- | --- | --- |
 | `title` | Titre de la carte | `Actualités` |
-| `entities` | Médias affichés, dans cet ordre (vide : tous les médias de l'intégration) | tous |
+| `entities` | Médias affichés, dans cet ordre (vide : tous les médias de l'intégration). Dans l'éditeur visuel, la liste « Médias et ordre des onglets » les range avec ↑ / ↓ et les masque d'une case | tous |
 | `max_items` | Nombre de titres affichés ; **Voir plus** affiche la suite | `10` |
 | `show_all` | Onglet **À la une** (tous les médias mélangés) | `true` |
 | `show_images` | Image de l'article quand on le déroule | `true` |
@@ -152,6 +152,10 @@ Uniquement via les [issues GitHub](https://github.com/Marlboro62/news-fr-card/is
 - [Actualités Canada](https://github.com/Marlboro62/news-ca-card) : la même carte pour les médias canadiens (Québec et anglophones), avec l'Alerte AMBER.
 
 ## Historique des versions
+
+### 0.1.3b1 (pré-version)
+
+- ✨ **Ordre des médias** : dans l'éditeur de la carte, la liste « Médias et ordre des onglets » déplace chaque média avec ↑ / ↓ et le masque d'une case. Chaque média garde sa couleur quand l'ordre change.
 
 ### 0.1.2
 
