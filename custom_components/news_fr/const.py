@@ -4,7 +4,7 @@ from __future__ import annotations
 from typing import Final
 
 DOMAIN: Final = "news_fr"
-VERSION: Final = "0.1.3b1"
+VERSION: Final = "0.1.3b2"
 NAME: Final = "Actualités France"
 
 CONF_SOURCES: Final = "sources"
