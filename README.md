@@ -154,13 +154,10 @@ Uniquement via les [issues GitHub](https://github.com/Marlboro62/news-fr-card/is
 
 ## Historique des versions
 
-### 0.1.3b2 (pré-version)
-
-- ✨ **Masquer des titres** : option `hide_words` (aussi dans l'éditeur) pour cacher les titres qui contiennent certains mots, par exemple les annonces légales (« Testament ») qu'un flux mélange aux articles.
-
-### 0.1.3b1 (pré-version)
+### 0.1.3
 
 - ✨ **Ordre des médias** : dans l'éditeur de la carte, la liste « Médias et ordre des onglets » déplace chaque média avec ↑ / ↓ et le masque d'une case. Chaque média garde sa couleur quand l'ordre change.
+- ✨ **Masquer des titres** : option `hide_words` (aussi dans l'éditeur) pour cacher les titres qui contiennent certains mots, par exemple les annonces légales (« Testament ») qu'un flux mélange aux articles.
 
 ### 0.1.2
 
