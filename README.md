@@ -84,13 +84,19 @@ Le Monde, BFMTV, CNews et Le Parisien sont cochés par défaut. Vous pouvez auss
 
 ## Installation
 
-### Avec HACS (dépôt personnalisé)
+### Avec HACS
 
-1. Ouvrez **Paramètres › Marketplace** (ou **HACS** avant la 2026.11), menu **⋮ › Dépôts personnalisés**.
-2. Ajoutez `https://github.com/Marlboro62/news-fr-card`, catégorie **Intégration**.
-3. Installez **Actualités France**, puis **redémarrez Home Assistant**.
+L'intégration fait partie du catalogue par défaut : aucun dépôt à ajouter.
+
+[![Ouvrir dans Home Assistant](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=Marlboro62&repository=news-fr-card&category=integration)
+
+1. Ouvrez **Paramètres › Marketplace** (ou **HACS** avant la 2026.11), ou utilisez le bouton ci-dessus.
+2. Cherchez **Actualités France**.
+3. Installez-la, puis **redémarrez Home Assistant**.
 4. **Paramètres › Appareils et services › Ajouter une intégration › Actualités France** : cochez les médias à suivre.
 5. **Rechargez la page** du navigateur (Ctrl+F5) : la carte **Actualités France** apparaît dans la liste des cartes. Aucune ressource à ajouter, l'intégration charge la carte elle-même.
+
+Si l'intégration n'apparaît pas encore dans la recherche, ajoutez-la à la main : menu **⋮ › Dépôts personnalisés**, adresse `https://github.com/Marlboro62/news-fr-card`, catégorie **Intégration**, puis reprenez l'étape 2.
 
 ### Manuellement
 
