@@ -125,7 +125,7 @@ type: custom:news-fr-card
 | --- | --- | --- |
 | `title` | Titre de la carte | `Actualités` |
 | `entities` | Médias affichés, dans cet ordre (vide : tous les médias de l'intégration). Dans l'éditeur visuel, la liste « Médias et ordre des onglets » les range avec ↑ / ↓ et les masque d'une case | tous |
-| `hide_words` | Masquer les titres contenant ces mots, séparés par des virgules (sans tenir compte des accents ni des majuscules), par exemple `Testament, Horoscope` | aucun |
+| `hide_words` | Masquer les articles dont le titre, le résumé ou l'adresse contient ces mots, séparés par des virgules (sans tenir compte des accents ni des majuscules), par exemple `Testament, Horoscope` | aucun |
 | `max_items` | Nombre de titres affichés ; **Voir plus** affiche la suite | `10` |
 | `show_all` | Onglet **À la une** (tous les médias mélangés) | `true` |
 | `show_images` | Image de l'article quand on le déroule | `true` |

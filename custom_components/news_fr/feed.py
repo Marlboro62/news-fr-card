@@ -122,6 +122,10 @@ def _image(item: ET.Element, kids: dict[str, list[ET.Element]], raw_summary: str
     return None
 
 
+# titre vide suivi du nom du média (« - Courrier picard ») : avis de décès, pages sans titre, etc.
+_EMPTY_HEADLINE = re.compile(r"^\s*[-–—|·]+\s+\S+(?:\s+\S+){0,3}\s*$")
+
+
 def _article(item: ET.Element) -> dict[str, Any] | None:
     kids = _children(item)
     news = kids.get("news", [])
@@ -136,7 +140,7 @@ def _article(item: ET.Element) -> dict[str, Any] | None:
             url = _web(el.text)
             break
     url = url or _web(_first(kids, "loc"))
-    if not title or not url:
+    if not title or not url or _EMPTY_HEADLINE.match(title):
         return None
     raw_summary = _first(kids, "description", "summary", "content")
     summary = _text(raw_summary, SUMMARY_MAX)

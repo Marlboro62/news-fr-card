@@ -8,7 +8,7 @@
  * © 2026 Marlboro62.
  */
 (() => {
-const CARD_VERSION = "0.1.3";
+const CARD_VERSION = "0.1.4-beta.1";
 
 const DEFAULTS = {
   title: "Actualités",
@@ -232,7 +232,8 @@ class NewsFrCard extends HTMLElement {
 
     // titres masqués : ceux qui contiennent un des mots choisis (sans tenir compte des accents ni des majuscules)
     const hide = hideList(c.hide_words);
-    const keep = (a) => !hide.length || !hide.some((w) => fold(a.title).includes(w));
+    // (aussi le résumé et l'adresse de l'article, pour les pages sans vrai titre)
+    const keep = (a) => !hide.length || !hide.some((w) => [a.title, a.summary, a.url].some((t) => fold(t).includes(w)));
     const pool = (this._tab === "all"
       ? sources.flatMap((s) => s.articles.map((a) => ({ ...a, src: s })))
       : sources.filter((s) => s.id === this._tab).flatMap((s) => s.articles.map((a) => ({ ...a, src: s })))).filter(keep);
@@ -369,7 +370,7 @@ const EDITOR_LABELS = {
   max_items: "Nombre de titres affichés (« Voir plus » pour la suite)",
   show_all: "Onglet « À la une » (tous les médias mélangés, du plus récent au plus ancien)",
   show_images: "Image de l'article quand on le déroule",
-  hide_words: "Masquer les titres contenant (mots séparés par des virgules, ex. : Testament, Horoscope)",
+  hide_words: "Masquer les articles contenant (titre, résumé ou adresse ; mots séparés par des virgules, ex. : Testament, Horoscope)",
   theme: "Couleurs de la carte",
 };
 
