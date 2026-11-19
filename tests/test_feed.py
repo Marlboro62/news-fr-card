@@ -111,3 +111,14 @@ def test_page_web_au_lieu_du_flux():
         parse_feed(b"<!DOCTYPE html><html><body>Blocked</body></html>", 5)
     with pytest.raises(ValueError, match="page web"):
         parse_feed(b"", 5)
+
+
+def test_titre_vide_ecarte():
+    """Google Actualités : titre vide suivi du média (« - Courrier picard ») : article écarté."""
+    xml = """<rss version="2.0"><channel><title>CP</title>
+<item><title>- Courrier picard</title><link>https://ex.fr/espace/x/1</link><guid>1</guid></item>
+<item><title>Le logement, urgence parmi tant d'autres - Courrier picard</title><link>https://ex.fr/a</link><guid>2</guid></item>
+<item><title>- 20 % sur les billets de train pour les fêtes</title><link>https://ex.fr/b</link><guid>3</guid></item>
+</channel></rss>""".encode()
+    titres = [a["title"] for a in parse_feed(xml, 10)]
+    assert titres == ["Le logement, urgence parmi tant d'autres - Courrier picard", "- 20 % sur les billets de train pour les fêtes"]
