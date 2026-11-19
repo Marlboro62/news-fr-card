@@ -1,5 +1,7 @@
 # Actualités France pour Home Assistant
 
+<img src="custom_components/news_fr/brand/icon.png" alt="Icône Actualités France" width="128" align="right">
+
 <p>
   ☕ <strong>Si cette carte vous est utile, vous pouvez soutenir le projet :</strong>
 </p>
