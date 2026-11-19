@@ -162,6 +162,12 @@ Uniquement via les [issues GitHub](https://github.com/Marlboro62/news-fr-card/is
 
 ## Historique des versions
 
+### 0.1.4
+
+- 🎨 **Nouvelle icône** : carte de France tricolore avec la Corse.
+- 🐛 **Articles sans titre écartés** (pages « - Courrier picard », avis de décès).
+- ✨ **Masquer les articles contenant** regarde aussi le résumé et l'adresse de l'article.
+
 ### 0.1.3
 
 - ✨ **Ordre des médias** : dans l'éditeur de la carte, la liste « Médias et ordre des onglets » déplace chaque média avec ↑ / ↓ et le masque d'une case. Chaque média garde sa couleur quand l'ordre change.
